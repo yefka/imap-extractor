@@ -69,6 +69,8 @@ namespace ImapAttachementExtractor
 
         private void btnExport_Click(object sender, EventArgs e)
         {
+            // TODO : run in a backgroundworker to work async
+
             if (!Directory.Exists(this.txtExportFolder.Text))
             {
                 MessageBox.Show(this, "Chemin d'export invalide", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -125,7 +127,7 @@ namespace ImapAttachementExtractor
 
             var messages = lastId == null
                 ? folder.Search("ALL", MessageFetchMode.Headers)
-                : folder.Search("UID " + lastId + ":*", MessageFetchMode.Headers);
+                : folder.Search("UID " + lastId + 1 + ":*", MessageFetchMode.Headers);
 
             int nbMessages = messages.Length;
             this.progressBar.Maximum = nbMessages;
@@ -195,6 +197,12 @@ namespace ImapAttachementExtractor
             {
                 message.Download();
             }
+            catch (OutOfMemoryException ex)
+            {
+                MessageBox.Show(this, ex.Message, "Fatal error", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                Application.Exit();
+                return;
+            }
             catch (Exception ex)
             {
                 //MessageBox.Show(string.Format("Error while reading:\nMessage : {0}\nsubject : {1}\nError: {2}", message.UId, message.Subject, ex.Message));
@@ -217,12 +225,19 @@ namespace ImapAttachementExtractor
             {
                 message.SaveTo(subFolder, fileMailName + ".eml");
             }
+            catch (OutOfMemoryException ex)
+            {
+                MessageBox.Show(this, ex.Message, "Fatal error", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                Application.Exit();
+                return;
+            }
             catch (Exception ex)
             {
                 MessageBox.Show(string.Format("Error while saving:\nMessage : {0}\nsubject : {1}\nError: {2}", message.UId, message.Subject, ex.Message));
                 SetAsError(parentPath, message.UId, "Save e-mail - " + ex.Message);
                 return;
             }
+
             foreach (var attachement in message.Attachments)
             {
                 try
@@ -236,6 +251,12 @@ namespace ImapAttachementExtractor
                     outputName = outputName.Replace("\\", "_");
                     attachement.Download();
                     attachement.Save(subFolder, outputName);
+                }
+                catch (OutOfMemoryException ex)
+                {
+                    MessageBox.Show(this, ex.Message, "Fatal error", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                    Application.Exit();
+                    return;
                 }
                 catch (Exception ex)
                 {
