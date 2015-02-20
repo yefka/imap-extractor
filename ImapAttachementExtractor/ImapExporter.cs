@@ -197,7 +197,7 @@ namespace ImapAttachementExtractor
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("Error while reading:\nMessage : {0}\nsubject : {1}\nError: {2}", message.UId, message.Subject, ex.Message));
+                //MessageBox.Show(string.Format("Error while reading:\nMessage : {0}\nsubject : {1}\nError: {2}", message.UId, message.Subject, ex.Message));
                 SetAsError(parentPath, message.UId, "Read e-mail - " + ex.Message);
                 return;
             }
@@ -239,7 +239,7 @@ namespace ImapAttachementExtractor
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(string.Format("Error while saving:\nMessage : {0}\nsubject : {1}\nAttachement : {2}\n Error: {3}", message.UId, message.Subject, attachement.FileName, ex.Message));
+                    //MessageBox.Show(string.Format("Error while saving:\nMessage : {0}\nsubject : {1}\nAttachement : {2}\n Error: {3}", message.UId, message.Subject, attachement.FileName, ex.Message));
                     SetAsError(parentPath, message.UId, "Save Attachement: " + attachement.FileName + " - " + ex.Message);
                     return;
                 }
